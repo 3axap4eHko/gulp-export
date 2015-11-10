@@ -1,0 +1,31 @@
+{
+  "author": "Ivan Zakharchenko <3axap4eHko@gmail.com> (http://potofcode.com/)",
+  "license": "MIT",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/MIT"
+    }
+  ],
+  "name": "gulp-export",
+  "description": "Gulp Export Plugin",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3axap4eHko/gulp-export.git"
+  },
+  "bugs": {
+    "url": "https://github.com/3axap4eHko/gulp-export/issues"
+  },
+  "homepage": "https://github.com/3axap4eHko/gulp-export#readme",
+  "dependencies": {
+    "through2": "^2.0.0"
+  },
+  "devDependencies": {
+    "jasmine": "^2.3.2"
+  }
+}
