@@ -1,5 +1,5 @@
 {
-  "author": "Ivan Zakharchenko <3axap4eHko@gmail.com> (http://potofcode.com/)",
+  "author": "Ivan Zakharchenko <3axap4eHko.development@gmail.com> (http://potofcode.com/)",
   "license": "MIT",
   "licenses": [
     {
@@ -9,7 +9,7 @@
   ],
   "name": "gulp-export",
   "description": "Gulp Export Plugin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "index.js",
   "scripts": {
     "test": "test"
