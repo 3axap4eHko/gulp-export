@@ -1,4 +1,4 @@
-/*! Gulp Export Plugin v0.0.3 | Copyright (c) 2015 Ivan (3axap4eHko) Zakharchenko*/
+/*! Gulp Export Plugin v0.0.4 | Copyright (c) 2015 Ivan (3axap4eHko) Zakharchenko*/
 'use strict';
 
 const fs = require('fs');
@@ -20,7 +20,7 @@ function setPath(scope, namespace, value) {
 
 const defaultOptions = {
     skipCountOfNamespaceParts: 1,
-    excludeRegExp: /^_/,
+    excludeRegExp: /[\\\/]_/,
     includeRegExp: /\.js$/
 };
 
@@ -34,8 +34,8 @@ module.exports = function(options) {
         const relativeFilename = path.relative(file.cwd, file.history[file.history.length-1]);
 
         if (!options.excludeRegExp.test(relativeFilename) && options.includeRegExp.test(relativeFilename)) {
-            var moduleName = relativeFilename.replace(/[\\\/]/g,'/').replace('.js','');
-            var namespace = moduleName.split('/').slice(options.skipCountOfNamespaceParts);
+            var moduleName = relativeFilename.replace(/[\\\/]/g,'/');
+            var namespace = moduleName.replace(/\..*?$/,'').split('/').slice(options.skipCountOfNamespaceParts);
             setPath(filesToExport, namespace, moduleName);
         }
         cb(null, file);
