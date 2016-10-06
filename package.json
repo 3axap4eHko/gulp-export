@@ -9,10 +9,10 @@
   ],
   "name": "gulp-export",
   "description": "Gulp Export Plugin",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "patch-release": "npm version patch && git push && git push --tags && npm publish"
   },
   "repository": {
     "type": "git",
@@ -23,9 +23,6 @@
   },
   "homepage": "https://github.com/3axap4eHko/gulp-export#readme",
   "dependencies": {
-    "through2": "^2.0.0"
-  },
-  "devDependencies": {
-    "jasmine": "^2.3.2"
+    "through2": "^2.0.1"
   }
 }

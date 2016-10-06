@@ -1,48 +1,63 @@
-/*! Gulp Export Plugin v0.0.4 | Copyright (c) 2015 Ivan (3axap4eHko) Zakharchenko*/
+/*! Gulp Export Plugin v0.1.1 | Copyright (c) 2015 Ivan (3axap4eHko) Zakharchenko*/
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const through = require('through2');
+const Fs = require('fs');
+const Path = require('path');
+const Through = require('through2');
+const delimiterPathExpr = /\\|\//g;
+const lowercaseExpr = /^[a-z]/;
 
-function setPath(scope, namespace, value) {
-    if (namespace.length <= 1) {
-        scope[namespace[0]] = value;
-    } else {
-        var key = namespace.shift();
-        if (!scope[key]) {
-            scope[key] = {};
-        }
-        setPath(scope[key], namespace, value);
+function toUpperCaseFirst(str) {
+    if (!str.length) {
+        return str;
     }
-    return scope;
+    return str[0].toUpperCase() + str.slice(1);
 }
-
+function toLowerCaseFirst(str) {
+    if (!str.length) {
+        return str;
+    }
+    return str[0].toLowerCase() + str.slice(1);
+}
+function importing(moduleName) {
+    if(lowercaseExpr.test(moduleName)) {
+        return `* as ${moduleName}`;
+    }
+    return moduleName;
+}
 const defaultOptions = {
-    skipCountOfNamespaceParts: 1,
-    excludeRegExp: /[\\\/]_/,
-    includeRegExp: /\.js$/
+    context: './'
 };
 
 module.exports = function(options) {
     options = Object.assign({}, defaultOptions, options || {});
 
-    var filesToExport = {};
-    const packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json')));
+    const indexModules = {};
+    const packageJson = JSON.parse(Fs.readFileSync(Path.join(process.cwd(), 'package.json')));
 
-    return through.obj( (file, enc, cb) => {
-        const relativeFilename = path.relative(file.cwd, file.history[file.history.length-1]);
+    return Through.obj( (file, enc, cb) => {
+        const fileName = file.history[file.history.length-1];
+        const relativePath = Path.relative(options.context, fileName);
+        const parsedPath = Path.parse(relativePath);
+        const isClass = !lowercaseExpr.test(parsedPath.name);
+        const namespace = parsedPath.dir
+            .split(delimiterPathExpr)
+            .filter( part => part.length)
+            .concat([parsedPath.name])
+            .map(toUpperCaseFirst);
 
-        if (!options.excludeRegExp.test(relativeFilename) && options.includeRegExp.test(relativeFilename)) {
-            var moduleName = relativeFilename.replace(/[\\\/]/g,'/');
-            var namespace = moduleName.replace(/\..*?$/,'').split('/').slice(options.skipCountOfNamespaceParts);
-            setPath(filesToExport, namespace, moduleName);
+        if (!isClass) {
+            namespace[0] = toLowerCaseFirst(namespace[0]);
         }
+        const relativeFilename = Path.relative(options.context, fileName).replace(delimiterPathExpr, '/').replace(/\.[^.]+$/,'');
+        const moduleName = namespace.join('');
+        indexModules[moduleName]=relativeFilename;
         cb(null, file);
     }, cb => {
-        var exportFileName = options.filename || packageJson.main;
-        var moduleJS = `module.exports = ${JSON.stringify(filesToExport, null, '    ')};`;
-        moduleJS = moduleJS.replace(/: "(.*?)"/g, ': require(\'./$1\')');
-        fs.writeFile(exportFileName, moduleJS, cb);
+        const exportFileName = options.filename || packageJson.main;
+        const indexFile = Object.keys(indexModules).map( m => `import ${importing(m)} from './${indexModules[m]}';`);
+        indexFile.push(`export default {\n    ${Object.keys(indexModules).join(',\n    ')}`);
+        indexFile.push('};');
+        Fs.writeFile(`${options.context}/${exportFileName}`, indexFile.join('\n'), cb);
     } );
 };

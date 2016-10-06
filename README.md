@@ -16,40 +16,48 @@ Let's we have the next file structure
 |   README.md
 |
 \---src
-    |   file1.js
-    |   file1.map
-    |   file2.js
-    |   file3.jsx
+    |   Class1.js
+    |   Class1.map
+    |   Class2.js
+    |   utils1.jsx
     |   _exclude.js
     |
-    \---folder1
-            file1_1.js
-            file1_2.js
-            file1_3.jsx
+    \---Namespace
+            Class4.js
+            Class5.js
+            utils2.jsx
             _exclude.js
 ```
-The module exports files to single file with name from main package.json
-```
-module.exports = {
-    "file1": require('./src/file1.js'),
-    "file2": require('./src/file2.js'),
-    "file3": require('./src/file3.jsx'),
-    "folder1": {
-        "file1_1": require('./src/folder1/file1_1.js'),
-        "file1_2": require('./src/folder1/file1_2.js'),
-        "file1_3": require('./src/folder1/file1_3.jsx')
-    }
+The module exports files to single file with name from main section of `package.json` or from options
+``` javascript
+// ./src/myAwesomeModule.js
+import Class1 from './Class1';
+import Class2 from './Class1';
+import * as utils1 from './utils1';
+
+import NamespaceClass4 from './Namespace/Class4';
+import NamespaceClass5 from './Namespace/Class5';
+import * as namespaceUtils2 from './Namespace/utils2';
+
+export default {
+    Class1,
+    Class2,
+    utils1,
+    NamespaceClass4,
+    NamespaceClass5,
+    namespaceUtils2
 };
 ```
 gulpfile.js
 ```
 "use strict";
+
 const gulp = require('gulp');
 const gexport = require("gulp-export");
 
-gulp.task('js-export', function() {
-    return gulp.src(['./src/**/*.*'])
-        .pipe(gexport({excludeRegExp: /[\\\/]_/, includeRegExp: /\.js[x]?$/}));
+gulp.task('export', function() {
+    return gulp.src(['./src/**/*.js*'])
+        .pipe(gexport({context: './src', filename: 'index.js'}));
 });
 
 gulp.task('default', ['js-export']);
