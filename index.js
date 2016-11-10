@@ -15,7 +15,8 @@ function toUpperCaseFirst(str) {
     return str[0].toUpperCase() + str.slice(1);
 }
 function toValidName(str) {
-    return str.split(invalidCharsExpr).map(toUpperCaseFirst)
+    console.log(str)
+    return str.split(invalidCharsExpr).map(toUpperCaseFirst).join('')
 }
 function toLowerCaseFirst(str) {
     if (!str.length) {
@@ -25,7 +26,7 @@ function toLowerCaseFirst(str) {
 }
 function importing(moduleName) {
     if(lowercaseExpr.test(moduleName)) {
-        return `* as ${moduleName}`;
+        return `* as _${moduleName}`;
     }
     return moduleName;
 }
@@ -61,7 +62,7 @@ module.exports = function(options) {
     }, cb => {
         const exportFileName = options.filename || packageJson.main;
         const indexFile = Object.keys(indexModules).map( m => `import ${importing(m)} from './${indexModules[m]}';`);
-        indexFile.push(`export default {\n    ${Object.keys(indexModules).join(',\n    ')}`);
+        indexFile.push(`export default {\n    ${Object.keys(indexModules).map( name => `'${name}': _${name}` ).join(',\n    ')}`);
         indexFile.push('};');
         Fs.writeFile(`${options.context}/${exportFileName}`, indexFile.join('\n'), cb);
     } );
