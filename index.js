@@ -6,12 +6,16 @@ const Path = require('path');
 const Through = require('through2');
 const delimiterPathExpr = /\\|\//g;
 const lowercaseExpr = /^[a-z]/;
+const invalidCharsExpr = /[-.,]/;
 
 function toUpperCaseFirst(str) {
     if (!str.length) {
         return str;
     }
     return str[0].toUpperCase() + str.slice(1);
+}
+function toValidName(str) {
+    return str.split(invalidCharsExpr).map(toUpperCaseFirst)
 }
 function toLowerCaseFirst(str) {
     if (!str.length) {
@@ -44,6 +48,7 @@ module.exports = function(options) {
             .split(delimiterPathExpr)
             .filter( part => part.length)
             .concat([parsedPath.name])
+            .map(toValidName)
             .map(toUpperCaseFirst);
 
         if (!isClass) {
