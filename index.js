@@ -15,7 +15,6 @@ function toUpperCaseFirst(str) {
     return str[0].toUpperCase() + str.slice(1);
 }
 function toValidName(str) {
-    console.log(str)
     return str.split(invalidCharsExpr).map(toUpperCaseFirst).join('')
 }
 function toLowerCaseFirst(str) {
