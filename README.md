@@ -1,5 +1,4 @@
-Gulp Export Plugin
-==================
+# Gulp Export Plugin
 
 ## Install
  $ npm install gulp-export
@@ -31,21 +30,21 @@ Let's we have the next file structure
 The module exports files to single file with name from main section of `package.json` or from options
 ``` javascript
 // ./src/myAwesomeModule.js
-import Class1 from './Class1';
-import Class2 from './Class1';
-import * as utils1 from './utils1';
+import _Class1 from './Class1';
+import _Class2 from './Class1';
+import * as _utils1 from './utils1';
 
-import NamespaceClass4 from './Namespace/Class4';
-import NamespaceClass5 from './Namespace/Class5';
-import * as namespaceUtils2 from './Namespace/utils2';
+import _NamespaceClass4 from './Namespace/Class4';
+import _NamespaceClass5 from './Namespace/Class5';
+import * as _namespaceUtils2 from './Namespace/utils2';
 
 export default {
-    Class1,
-    Class2,
-    utils1,
-    NamespaceClass4,
-    NamespaceClass5,
-    namespaceUtils2
+    'Class1': _Class1,
+    'Class2': _Class2,
+    'utils1': utils1,
+    'NamespaceClass4': NamespaceClass4,
+    'NamespaceClass5': NamespaceClass5,
+    'namespaceUtils2': namespaceUtils2
 };
 ```
 gulpfile.js

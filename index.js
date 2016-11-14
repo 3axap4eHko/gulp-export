@@ -27,7 +27,7 @@ function importing(moduleName) {
     if(lowercaseExpr.test(moduleName)) {
         return `* as _${moduleName}`;
     }
-    return moduleName;
+    return `_${moduleName}`;
 }
 const defaultOptions = {
     context: './'
@@ -38,10 +38,14 @@ module.exports = function(options) {
 
     const indexModules = {};
     const packageJson = JSON.parse(Fs.readFileSync(Path.join(process.cwd(), 'package.json')));
+    const exportFileName = options.filename || packageJson.main;
 
     return Through.obj( (file, enc, cb) => {
         const fileName = file.history[file.history.length-1];
         const relativePath = Path.relative(options.context, fileName);
+        if (relativePath === exportFileName) {
+            return;
+        }
         const parsedPath = Path.parse(relativePath);
         const isClass = !lowercaseExpr.test(parsedPath.name);
         const namespace = parsedPath.dir
@@ -59,7 +63,6 @@ module.exports = function(options) {
         indexModules[moduleName]=relativeFilename;
         cb(null, file);
     }, cb => {
-        const exportFileName = options.filename || packageJson.main;
         const indexFile = Object.keys(indexModules).map( m => `import ${importing(m)} from './${indexModules[m]}';`);
         indexFile.push(`export default {\n    ${Object.keys(indexModules).map( name => `'${name}': _${name}` ).join(',\n    ')}`);
         indexFile.push('};');
