@@ -1,5 +1,7 @@
 # Gulp Export Plugin
 
+Export files through `index.js`
+
 ## Install
  $ npm install gulp-export
 
@@ -27,9 +29,9 @@ Let's we have the next file structure
             utils2.jsx
             _exclude.js
 ```
-The module exports files to single file with name from main section of `package.json` or from options
+The module exports the files to a single file
 ``` javascript
-// ./src/myAwesomeModule.js
+// ./build/index.js
 import _Class1 from './Class1';
 import _Class2 from './Class1';
 import * as _utils1 from './utils1';
@@ -49,14 +51,32 @@ export default {
 ```
 gulpfile.js
 ```
-"use strict";
+'use strict';
 
-const gulp = require('gulp');
-const gexport = require("gulp-export");
+const sourceDir = './src';
+const buildDir = './build';
 
-gulp.task('export', function() {
-    return gulp.src(['./src/**/*.js*'])
-        .pipe(gexport({context: './src', filename: 'index.js'}));
+const Del = require('del');
+const Gulp = require('gulp');
+const ESLlint = require('gulp-eslint');
+const Sourcemaps = require('gulp-sourcemaps');
+const Export = require('gulp-export');
+const Babel = require('gulp-babel');
+
+Gulp.task('clean', cb => {
+  return Del([buildDir], cb);
+});
+
+Gulp.task('js-compile', ['clean'], function() {
+  return Gulp.src([`${sourceDir}/**/*.js`])
+    .pipe(ESLlint())
+    .pipe(ESLlint.format())
+    .pipe(ESLlint.failAfterError())
+    .pipe(Export({context: './src'}))
+    .pipe(Sourcemaps.init())
+    .pipe(Babel())
+    .pipe(Sourcemaps.write('.'))
+    .pipe(Gulp.dest(buildDir));
 });
 
 gulp.task('default', ['js-export']);
@@ -64,4 +84,4 @@ gulp.task('default', ['js-export']);
 
 ## License
 [The MIT License](http://opensource.org/licenses/MIT)
-Copyright (c) 2015 Ivan Zakharchenko
+Copyright (c) 2015-present Ivan Zakharchenko

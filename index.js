@@ -1,9 +1,10 @@
-/*! Gulp Export Plugin v0.1.1 | Copyright (c) 2015 Ivan (3axap4eHko) Zakharchenko*/
+/*! Gulp Export Plugin v1.0.0 | Copyright (c) 2015-present Ivan (3axap4eHko) Zakharchenko*/
 'use strict';
 
-const Fs = require('fs');
 const Path = require('path');
 const Through = require('through2');
+const File = require('vinyl');
+
 const delimiterPathExpr = /\\|\//g;
 const lowercaseExpr = /^[a-z]/;
 const invalidCharsExpr = /[-.,]/;
@@ -30,14 +31,14 @@ function importing(moduleName) {
     return `_${moduleName}`;
 }
 const defaultOptions = {
-    context: './'
+    context: './',
+    filename: 'index.js'
 };
 
 module.exports = function(options) {
     options = Object.assign({}, defaultOptions, options || {});
 
     const indexModules = {};
-    const packageJson = JSON.parse(Fs.readFileSync(Path.join(process.cwd(), 'package.json')));
     const exportFileName = options.filename || packageJson.main;
 
     return Through.obj( (file, enc, cb) => {
@@ -62,10 +63,14 @@ module.exports = function(options) {
         const moduleName = namespace.join('');
         indexModules[moduleName]=relativeFilename;
         cb(null, file);
-    }, cb => {
+    }, function(cb) {
         const indexFile = Object.keys(indexModules).map( m => `import ${importing(m)} from './${indexModules[m]}';`);
-        indexFile.push(`export default {\n    ${Object.keys(indexModules).map( name => `'${name}': _${name}` ).join(',\n    ')}`);
+        indexFile.push(`\nexport default {\n    ${Object.keys(indexModules).map( name => `'${name}': _${name}` ).join(',\n    ')}`);
         indexFile.push('};');
-        Fs.writeFile(`${options.context}/${exportFileName}`, indexFile.join('\n'), cb);
+        const exportFile = new File({
+            path: options.filename,
+            contents: Buffer.from(indexFile.join('\n'))
+        });
+        cb(null, exportFile);
     } );
 };
