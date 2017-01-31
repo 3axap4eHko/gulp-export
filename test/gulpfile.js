@@ -12,8 +12,8 @@ Gulp.task('clean', cb => {
 });
 
 Gulp.task('export', ['clean'], () => {
-    return Gulp.src([`${sourceDir}/**/*.js`, `!${sourceDir}/index.js`])
-        .pipe(Export({context: './src'}))
+    return Gulp.src([`${sourceDir}/**/*.js`])
+        .pipe(Export({context: './src', exclude: /_/}))
         .pipe(Gulp.dest(buildDir));
 });
 
