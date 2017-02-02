@@ -47,9 +47,6 @@ module.exports = function (options) {
   return Through.obj((file, enc, cb) => {
     const fileName = file.history[file.history.length - 1];
     const relativePath = Path.relative(options.context, fileName);
-    console.log(exclude);
-    console.log(relativePath);
-    console.log(exclude.test(relativePath));
     if (!exclude.test(relativePath)) {
       const parsedPath = Path.parse(relativePath);
       const isClass = !lowercaseExpr.test(parsedPath.name);
