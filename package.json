@@ -9,14 +9,14 @@
   ],
   "name": "gulp-export",
   "description": "Gulp Export Plugin",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "main": "index.js",
   "scripts": {
     "test": "cd test && gulp",
     "patch-release": "npm version patch && git push && git push --tags && npm publish"
   },
-  "engines" : {
-    "node" : ">=6"
+  "engines": {
+    "node": ">=6"
   },
   "repository": {
     "type": "git",
