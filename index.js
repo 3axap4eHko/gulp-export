@@ -35,18 +35,34 @@ const defaultOptions = {
   filename: 'index.js',
   exclude: /^$/,
   indentSize: 2,
+  exportType: 'default',
+};
+
+const exportTypes = {
+  named(indexModules) {
+    return `\n${Object.keys(indexModules).map(name => `export const ${name} = $${name};`).join('\n')}\n`;
+  },
+  default(indexModules, indent) {
+    return `\nexport default {\n${indent}${Object.keys(indexModules).map(name => `'${name}': $${name},`).join(`\n${indent}`)}\n};`
+  },
+  global(indexModules) {
+    return `\nconst context = typeof window === 'undefined' ? (typeof global === 'undefined' ? this : global) : window;` +
+    `\n${Object.keys(indexModules).map(name => `context['${name}']= $${name};`).join('\n')}\n`;
+  }
 };
 
 module.exports = function (options) {
-  options = Object.assign({}, defaultOptions, options || {});
+  const { context, filename, exclude, indentSize, exportType } = Object.assign({}, defaultOptions, options || {});
+
+  if (!(exportType in exportTypes)) {
+    throw new Error(`Unknown export type '${exportType}' can be: ${Object.keys(exportTypes)}`);
+  }
 
   const indexModules = {};
-  const exportFileName = options.filename || packageJson.main;
-  const {exclude, indentSize} = options;
 
   return Through.obj((file, enc, cb) => {
-    const fileName = file.history[file.history.length - 1];
-    const relativePath = Path.relative(options.context, fileName);
+    const source = file.history[file.history.length - 1];
+    const relativePath = Path.relative(context, source);
     if (!exclude.test(relativePath)) {
       const parsedPath = Path.parse(relativePath);
       const isClass = !lowercaseExpr.test(parsedPath.name);
@@ -60,7 +76,7 @@ module.exports = function (options) {
       if (!isClass) {
         namespace[0] = toLowerCaseFirst(namespace[0]);
       }
-      const relativeFilename = Path.relative(options.context, fileName).replace(delimiterPathExpr, '/').replace(/\.[^.]+$/, '');
+      const relativeFilename = Path.relative(context, source).replace(delimiterPathExpr, '/').replace(/\.[^.]+$/, '');
       const moduleName = namespace.join('');
       indexModules[moduleName] = relativeFilename;
     }
@@ -70,11 +86,10 @@ module.exports = function (options) {
     const indent = ' '.repeat(indentSize);
     const indexFile = Object.keys(indexModules).map(m => `import ${importing(m)} from './${indexModules[m]}';`);
 
-    indexFile.push(`\nexport default {\n${indent}${Object.keys(indexModules).map(name => `'${name}': $${name}`).join(`,\n${indent}`)},`);
-    indexFile.push('};');
+    indexFile.push(exportTypes[exportType](indexModules, indent));
 
     const exportFile = new File({
-      path: exportFileName,
+      path: filename,
       contents: Buffer.from(indexFile.join('\n'))
     });
     cb(null, exportFile);

@@ -72,7 +72,11 @@ Gulp.task('js-compile', ['clean'], function() {
     .pipe(ESLlint())
     .pipe(ESLlint.format())
     .pipe(ESLlint.failAfterError())
-    .pipe(Export({context: './src', exclude: /_/})) // excluded all files with underscore
+    .pipe(Export({
+        context: './src',
+        exclude: /_/,           // excluded all files with underscore
+        exportType: 'default',  // export as default can be: named, default and global
+    }))
     .pipe(Sourcemaps.init())
     .pipe(Babel())
     .pipe(Sourcemaps.write('.'))

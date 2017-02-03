@@ -9,7 +9,7 @@
   ],
   "name": "gulp-export",
   "description": "Gulp Export Plugin",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "main": "index.js",
   "scripts": {
     "test": "cd test && gulp",
